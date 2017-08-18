@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tomtop.timetask.mapper.TaskInfoMapper" >
+    <resultMap id="BaseResultMap" type="com.tomtop.timetask.entity.TaskInfo" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="task_name" property="taskName" jdbcType="VARCHAR" />
+        <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="cron" property="cron" jdbcType="VARCHAR" />
+        <result column="trigger_name" property="triggerName" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id, task_name, group_name, url, cron, trigger_name, status, create_time, update_time,
+        create_user
+    </sql>
+    <select id="getTaskInfos" resultMap="BaseResultMap">
+     select
+        <include refid="Base_Column_List"/>
+     from t_task_info
+     where status = 1
+    </select>
+
+    <!-- add by youz 2017-8-16 根据任务名称和分组名称查询任务信息 -->
+    <select id="selectByTaskNameAndGroupName" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_task_info
+        where task_name = #{taskName} and group_name = #{groupName}
+    </select>
+
+    <!-- add by youz 2017-8-15 根据任务名称和分组名称更新任务信息 -->
+    <update id="updateByTaskNameAndGroupName" parameterType="com.tomtop.timetask.entity.TaskInfo">
+    UPDATE T_TASK_INFO
+      <set>
+          <if test = "url != null and url != ''">
+            URL = #{url, jdbcType=VARCHAR},
+          </if>
+          <if test = "cron != null and cron != ''">
+            CRON = #{cron, jdbcType=VARCHAR},
+          </if>
+          <if test = "triggerName != null and triggerName != ''">
+            TRIGGER_NAME = #{triggerName, jdbcType=VARCHAR},
+          </if>
+          <if test = "status != null">
+            STATUS = #{status, jdbcType=INTEGER},
+          </if>
+          <if test = "updateTime !=  null" >
+            UPDATE_TIME = #{updateTime, jdbcType=TIMESTAMP},
+          </if>
+      </set>
+    WHERE TASK_NAME = #{taskName}
+      AND GROUP_NAME = #{groupName}
+    </update>
+
+    <!-- add by youz 2017-8-16 更新所有任务状态 -->
+    <update id="updateAllTaskStatus" parameterType="java.lang.Integer">
+        UPDATE T_TASK_INFO SET STATUS = #{status, jdbcType=INTEGER}
+    </update>
+
+    <!-- add by youz 2017-8-16 根据任务名称和分组名称删除任务信息 -->
+    <delete id="deleteByTaskNameAndGroupName" parameterType="com.tomtop.timetask.entity.TaskInfo">
+        DELETE FROM T_TASK_INFO WHERE TASK_NAME = #{taskName} AND GROUP_NAME = #{groupName}
+    </delete>
+</mapper>
